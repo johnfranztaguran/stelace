@@ -378,7 +378,9 @@ function checkPermissions (permissions = [], {
         arrayPermissions,
         hashPermissions,
         sources,
-        optionalCheck
+        optionalCheck,
+        missingPlanPermissions,
+        plan
       })
 
       // check if platformData or namespaces can be edited
@@ -594,7 +596,9 @@ function checkEnoughPermissions ({
   arrayPermissions,
   hashPermissions,
   sources,
-  optionalCheck
+  optionalCheck,
+  missingPlanPermissions,
+  plan
 }) {
   const matchedPermissions = {}
 
@@ -611,8 +615,15 @@ function checkEnoughPermissions ({
   // It’s up to the downstream service
   // to decide whether a specific combination (or all) of permissions are required.
   if (permissions.length && !hasMatchedPermission && !optionalCheck) {
-    throw createError(403, 'No appropriate permission', {
-      expose: false,
+    const defaultMessage = 'No appropriate permission'
+    let message = defaultMessage
+
+    if (missingPlanPermissions && missingPlanPermissions.length) {
+      message = 'Not permitted by plan'
+      if (plan && plan.permissionErrorMessage) message += `: ${plan.permissionErrorMessage}`
+    }
+
+    throw createError(403, message, {
       sources,
       permissions,
       matchedPermissions
