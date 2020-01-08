@@ -615,15 +615,17 @@ function checkEnoughPermissions ({
   // It’s up to the downstream service
   // to decide whether a specific combination (or all) of permissions are required.
   if (permissions.length && !hasMatchedPermission && !optionalCheck) {
+    let errorStatus = 403
     const defaultMessage = 'No appropriate permission'
     let message = defaultMessage
 
     if (missingPlanPermissions && missingPlanPermissions.length) {
+      errorStatus = 402
       message = 'Not permitted by plan'
       if (plan && plan.permissionErrorMessage) message += `: ${plan.permissionErrorMessage}`
     }
 
-    throw createError(403, message, {
+    throw createError(errorStatus, message, {
       sources,
       permissions,
       matchedPermissions
